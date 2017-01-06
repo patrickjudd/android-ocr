@@ -54,8 +54,22 @@ public final class TranslateAsyncTask extends AsyncTask<String, String, Boolean>
   
   @Override
   protected Boolean doInBackground(String... arg0) {
-    translatedText = Translator.translate(activity, sourceLanguageCode, targetLanguageCode, sourceText);
-
+//    translatedText = Translator.translate(activity, sourceLanguageCode, targetLanguageCode, sourceText);
+    // HACK: override translation with hex to ascii conversion
+    String[] lines = sourceText.split(System.getProperty("line.separator"));
+    for(int i = 0; i < lines.length; i++) {
+      String[] tokens = lines[i].split("[ ]+");
+      for(int j = 0; j < tokens.length; j++)
+      {
+        try {
+          int dec = Integer.parseInt(tokens[j]);
+          translatedText += (char)dec;
+        } catch (NumberFormatException e) {
+          translatedText += tokens[j];
+        }
+      }
+      translatedText += "\n";
+    }
     // Check for failed translations.
     if (translatedText.equals(Translator.BAD_TRANSLATION_MSG)) {
       return false;
